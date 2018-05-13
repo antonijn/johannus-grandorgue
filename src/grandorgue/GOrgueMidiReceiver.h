@@ -35,6 +35,7 @@ private:
 protected:
 	void Preconfigure(GOrgueConfigReader& cfg, wxString group);
 	int GetTranspose();
+	void HandleJohannusAntonijnSysEx(const GOrgueMidiEvent& e);
 
 public:
 	GOrgueMidiReceiver(GrandOrgueFile* organfile, MIDI_RECEIVER_TYPE type);

@@ -24,6 +24,8 @@
 #include "GOrgueConfigReader.h"
 #include "GOrgueEnclosure.h"
 #include "GOrgueManual.h"
+#include "GOrgueMidiEvent.h"
+#include "GOrgueSetter.h"
 #include "GOrgueSettings.h"
 #include "GrandOrgueFile.h"
 
@@ -93,4 +95,15 @@ void GOrgueMidiReceiver::Assign(const GOrgueMidiReceiverData& data)
 	GOrgueMidiReceiverBase::Assign(data);
 	if (m_organfile)
 		m_organfile->Modified();
+}
+
+void GOrgueMidiReceiver::HandleJohannusAntonijnSysEx(const GOrgueMidiEvent& e)
+{
+	if (!m_organfile)
+		return;
+
+	if (e.GetKey() == 0x01) // Transpose
+	{
+		m_organfile->GetSetter()->SetTranspose(e.GetValue());
+	}
 }

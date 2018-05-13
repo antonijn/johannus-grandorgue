@@ -51,6 +51,7 @@ private:
 protected:
 	virtual void Preconfigure(GOrgueConfigReader& cfg, wxString group);
 	virtual int GetTranspose();
+	virtual void HandleJohannusAntonijnSysEx(const GOrgueMidiEvent& e);
 	
 public:
 	GOrgueMidiReceiverBase(MIDI_RECEIVER_TYPE type);

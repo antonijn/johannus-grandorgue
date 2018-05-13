@@ -76,6 +76,7 @@ typedef enum {
 	MIDI_M_NOTE_NO_VELOCITY,
 	MIDI_M_NOTE_SHORT_OCTAVE,
 	MIDI_M_NOTE_NORMAL,
+	MIDI_M_SYSEX_JOHANNUS_ANTONIJN,
 } midi_match_message_type;
 
 typedef struct {

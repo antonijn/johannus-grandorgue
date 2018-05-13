@@ -25,6 +25,7 @@
 #include "GOrgueConfigWriter.h"
 #include "GOrgueMidiEvent.h"
 #include "GOrgueMidiMap.h"
+//#include "GOrgueSetter.h"
 
 GOrgueMidiReceiverBase::GOrgueMidiReceiverBase(MIDI_RECEIVER_TYPE type):
 	GOrgueMidiReceiverData(type),
@@ -72,6 +73,7 @@ const struct IniFileEnumEntry GOrgueMidiReceiverBase::m_MidiTypes[] = {
 	{ wxT("NoteNoVelocity"), MIDI_M_NOTE_NO_VELOCITY },
 	{ wxT("NoteShortOctave"), MIDI_M_NOTE_SHORT_OCTAVE },
 	{ wxT("NoteNormal"), MIDI_M_NOTE_NORMAL },
+	{ wxT("SysExJohannusAntonijn"), MIDI_M_SYSEX_JOHANNUS_ANTONIJN },
 };
 
 void GOrgueMidiReceiverBase::Load(GOrgueConfigReader& cfg, wxString group, GOrgueMidiMap& map)
@@ -132,6 +134,10 @@ void GOrgueMidiReceiverBase::Preconfigure(GOrgueConfigReader& cfg, wxString grou
 int GOrgueMidiReceiverBase::GetTranspose()
 {
 	return 0;
+}
+
+void GOrgueMidiReceiverBase::HandleJohannusAntonijnSysEx(const GOrgueMidiEvent& e)
+{
 }
 
 void GOrgueMidiReceiverBase::Save(GOrgueConfigWriter& cfg, wxString group, GOrgueMidiMap& map)
@@ -206,6 +212,7 @@ bool GOrgueMidiReceiverBase::HasKey(midi_match_message_type type)
 	   type == MIDI_M_NRPN_RANGE ||
 	   type == MIDI_M_SYSEX_JOHANNUS_9 ||
 	   type == MIDI_M_SYSEX_JOHANNUS_11 ||
+	   type == MIDI_M_SYSEX_JOHANNUS_ANTONIJN ||
 	   type == MIDI_M_CTRL_BIT ||
 	   type == MIDI_M_CTRL_CHANGE_FIXED ||
 	   type == MIDI_M_RPN ||
@@ -465,6 +472,15 @@ MIDI_MATCH_TYPE GOrgueMidiReceiverBase::Match(const GOrgueMidiEvent& e, const un
 		unsigned pos = createInternal(e.GetDevice());
 		m_Internal[pos].channel = e.GetChannel();
 		m_Internal[pos].key = e.GetValue();
+		return MIDI_MATCH_NONE;
+	}
+
+	if (e.GetMidiType() == MIDI_SYSEX_JOHANNUS_ANTONIJN)
+	{
+		if (m_ElementID == -1)
+			return MIDI_MATCH_NONE;
+
+		HandleJohannusAntonijnSysEx(e);
 		return MIDI_MATCH_NONE;
 	}
 
