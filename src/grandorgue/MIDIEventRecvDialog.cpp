@@ -190,6 +190,7 @@ MIDIEventRecvDialog::MIDIEventRecvDialog (wxWindow* parent, GOrgueMidiReceiverBa
 		m_eventtype->Append(_("Sys Ex Johannus 11 bytes"), (void*)MIDI_M_SYSEX_JOHANNUS_11);
 		m_eventtype->Append(_("Sys Ex Viscount"), (void*)MIDI_M_SYSEX_VISCOUNT);
 		m_eventtype->Append(_("Sys Ex Viscount Toggle"), (void*)MIDI_M_SYSEX_VISCOUNT_TOGGLE);
+		m_eventtype->Append(_("Sys Ex Johannus/Antonijn"), (void*)MIDI_M_SYSEX_JOHANNUS_ANTONIJN);
 	}
 
 	m_current = 0;
@@ -294,7 +295,7 @@ void MIDIEventRecvDialog::OnTypeChange(wxCommandEvent& event)
 			m_LowValueLabel->SetLabel(_("&Off RPN number:"));
 		else if (type == MIDI_M_NRPN_RANGE)
 			m_LowValueLabel->SetLabel(_("&Off NRPN number:"));
-		else if (type == MIDI_M_SYSEX_VISCOUNT_TOGGLE)
+		else if (type == MIDI_M_SYSEX_VISCOUNT_TOGGLE || type == MIDI_M_SYSEX_JOHANNUS_ANTONIJN)
 			m_LowValueLabel->SetLabel(_("&Value:"));
 		else if (type == MIDI_M_SYSEX_JOHANNUS_11)
 			m_LowValueLabel->SetLabel(_("L&ower bank:"));
@@ -503,6 +504,7 @@ void MIDIEventRecvDialog::OnMidiEvent(const GOrgueMidiEvent& event)
 	case MIDI_SYSEX_JOHANNUS_9:
 	case MIDI_SYSEX_JOHANNUS_11:
 	case MIDI_SYSEX_VISCOUNT:
+	case MIDI_SYSEX_JOHANNUS_ANTONIJN:
 		break;
 
 	default:
@@ -795,6 +797,9 @@ void MIDIEventRecvDialog::DetectEvent()
 						e.type = MIDI_M_SYSEX_VISCOUNT;
 					}
 					break;
+				case MIDI_SYSEX_JOHANNUS_ANTONIJN:
+					e.type = MIDI_M_SYSEX_JOHANNUS_ANTONIJN;
+					break;
 
 				default:
 					continue;
@@ -845,6 +850,9 @@ void MIDIEventRecvDialog::DetectEvent()
 	case MIDI_SYSEX_VISCOUNT:
 		e.type = MIDI_M_SYSEX_VISCOUNT_TOGGLE;
 		low_value = event.GetValue();
+		break;
+	case MIDI_SYSEX_JOHANNUS_ANTONIJN:
+		e.type = MIDI_M_SYSEX_JOHANNUS_ANTONIJN;
 		break;
 
 	default:

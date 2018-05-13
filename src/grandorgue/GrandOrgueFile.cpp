@@ -1102,6 +1102,55 @@ void GrandOrgueFile::Update()
 
 void GrandOrgueFile::ProcessMidi(const GOrgueMidiEvent& event)
 {
+	if (event.GetMidiType() == MIDI_SYSEX_JOHANNUS_ANTONIJN)
+	{
+		// Need to be translated
+		static const char *const temperaments[] = {
+			"Original temperament",
+			"Equal temperament",
+			"Kirnberger III",
+			"Werckmeister III",
+			"Bach (Bradley Lehman)",
+			"1/4 comma meantone (Aaron 1523)",
+			"1/5-comma meantone (Verheijen)",
+			"1/6-comma meantone",
+			"Zarlino (1558) 2/7-comma meantone",
+			"Pythagorean",
+		};
+		static const int num_temps = sizeof(temperaments) / sizeof(temperaments[0]);
+
+		auto e = event;
+		switch (e.GetKey())
+		{
+		case 0x01: // Transpose
+			GetSetter()->SetTranspose(e.GetValue());
+			break;
+
+		case 0x02: // Temperament
+			if (e.GetValue() >= 0 && e.GetValue() < num_temps)
+				SetTemperament(wxTRANSLATE(temperaments[e.GetValue()]));
+			break;
+
+		case 0x101: // Volume/gain
+			if (e.GetValue() >= -120 && e.GetValue() <= 20) {
+				SetVolume(e.GetValue());
+				m_soundengine->SetVolume(e.GetValue());
+			}
+			break;
+
+		case 0x102:
+			if (e.GetValue() >= 1 && e.GetValue() <= 50)
+				m_soundengine->SetHardPolyphony(100 * e.GetValue());
+			break;
+
+		case 0x141:
+			m_AudioRecorder->StartRecording(false);
+			break;
+		case 0x142:
+			m_AudioRecorder->StopRecording();
+			break;
+		}
+	}
 	if (event.GetMidiType() == MIDI_RESET)
 	{
 		Reset();

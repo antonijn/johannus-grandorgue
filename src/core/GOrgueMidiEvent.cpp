@@ -23,6 +23,10 @@
 
 #include "GOrgueMidiMap.h"
 #include <wx/intl.h>
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
+#include <iterator>
 
 GOrgueMidiEvent::GOrgueMidiEvent() :
 	m_miditype(MIDI_NONE),
@@ -115,6 +119,15 @@ void GOrgueMidiEvent::FromMidi(const std::vector<unsigned char>& msg, GOrgueMidi
 			SetMidiType(MIDI_RESET);
 			break;
 		}
+                if (msg.size() == 26 && msg[0] == 0xF0 && 0 == std::strncmp((const char *)&msg[1], "JOHANNUSANTONIJN", 16) && msg[25] == 0xF7)
+                {
+                        int key, value;
+                        std::sscanf((const char *)&msg[17], "%4x%4x", &key, &value);
+                        uint16_t key16 = (uint16_t)key, value16 = (uint16_t)value;
+                        SetKey((int16_t)key16);
+                        SetValue((int16_t)value16);
+                        SetMidiType(MIDI_SYSEX_JOHANNUS_ANTONIJN);
+                }
 		if (msg.size() == 9 && msg[0] == 0xF0 && msg[1] == 0x00 && msg[2] == 0x4A && msg[3] == 0x4F && msg[4] == 0x48 && msg[5] == 0x41 && msg[6] == 0x53 && msg[8] == 0xF7)
 		{
 			SetKey(msg[7]);
@@ -370,6 +383,20 @@ void GOrgueMidiEvent::ToMidi(std::vector<std::vector<unsigned char>>& msg, GOrgu
 		}
 		return;
 
+	case MIDI_SYSEX_JOHANNUS_ANTONIJN:
+		{
+			uint16_t key = GetKey();
+			uint16_t value = GetValue();
+			m.resize(26);
+			m[0] = 0xF0;
+			char johannus[25];
+			std::sprintf(johannus, "JOHANNUSANTONIJN%04x%04x", (int)key, (int)value);
+			std::copy(std::begin(johannus), std::end(johannus), m.begin() + 1);
+			m[25] = 0xF7;
+			msg.push_back(m);
+		}
+		return;
+
 	case MIDI_SYSEX_JOHANNUS_9:
 	case MIDI_SYSEX_JOHANNUS_11:
 	case MIDI_SYSEX_VISCOUNT:
@@ -416,6 +443,9 @@ wxString GOrgueMidiEvent::ToString(GOrgueMidiMap& map) const
 
 	case MIDI_SYSEX_VISCOUNT:
 		return wxString::Format(_("sysex Viscount value: %d"), GetValue());
+
+	case MIDI_SYSEX_JOHANNUS_ANTONIJN:
+		return wxString::Format(_("sysex Johannus-Antonijn key: %d value: %d"), GetKey(), GetValue());
 
 	case MIDI_SYSEX_GO_CLEAR:
 		return _("sysex GrandOrgue clear");
