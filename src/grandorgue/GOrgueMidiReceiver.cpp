@@ -27,6 +27,7 @@
 #include "GOrgueMidiEvent.h"
 #include "GOrgueSetter.h"
 #include "GOrgueSettings.h"
+#include "GOSoundEngine.h"
 #include "GrandOrgueFile.h"
 #include <wx/intl.h>
 
@@ -130,8 +131,10 @@ void GOrgueMidiReceiver::HandleJohannusAntonijnSysEx(const GOrgueMidiEvent& e)
 		break;
 
 	case 0x101: // Volume/gain
-		if (e.GetValue() >= -120 && e.GetValue() <= 20)
+		if (e.GetValue() >= -120 && e.GetValue() <= 20) {
 			m_organfile->SetVolume(e.GetValue());
+			m_organfile->GetSoundEngine()->SetVolume(e.GetValue());
+		}
 		break;
 	}
 }

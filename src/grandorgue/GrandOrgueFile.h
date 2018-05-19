@@ -169,6 +169,7 @@ public:
 	void SetTemperament(wxString name);
 	wxString GetTemperament();
 	void MarkSectionInUse(wxString name);
+	GOSoundEngine* GetSoundEngine();
 
 	bool useArchives();
 	GOrgueArchive* findArchive(const wxString& name);

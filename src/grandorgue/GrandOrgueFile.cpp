@@ -1210,6 +1210,10 @@ void GrandOrgueFile::MarkSectionInUse(wxString name)
 		throw wxString::Format(_("Section %s already in use"), name.c_str());
 	m_UsedSections[name] = true;
 }
+GOSoundEngine* GrandOrgueFile::GetSoundEngine()
+{
+	return m_soundengine;
+}
 
 void GrandOrgueFile::SetODFPath(wxString path)
 {
