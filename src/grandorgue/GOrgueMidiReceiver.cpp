@@ -28,6 +28,7 @@
 #include "GOrgueSetter.h"
 #include "GOrgueSettings.h"
 #include "GrandOrgueFile.h"
+#include <wx/intl.h>
 
 GOrgueMidiReceiver::GOrgueMidiReceiver(GrandOrgueFile* organfile, MIDI_RECEIVER_TYPE type):
 	GOrgueMidiReceiverBase(type),
@@ -99,11 +100,36 @@ void GOrgueMidiReceiver::Assign(const GOrgueMidiReceiverData& data)
 
 void GOrgueMidiReceiver::HandleJohannusAntonijnSysEx(const GOrgueMidiEvent& e)
 {
+	// Need to be translated
+	static const char *const temperaments[] = {
+		"Original temperament",
+		"Equal temperament",
+		"Kirnberger III",
+		"Werckmeister III",
+		"Bach (Bradley Lehman)",
+		"1/4 comma meantone (Aaron 1523)",
+		"1/5-comma meantone (Verheijen)",
+		"1/6-comma meantone",
+		"Zarlino (1558) 2/7-comma meantone",
+		"Pythagorean",
+	};
+	static const size_t num_temps = sizeof(temperaments) / sizeof(temperaments[0]);
+
 	if (!m_organfile)
 		return;
 
-	if (e.GetKey() == 0x01) // Transpose
+	switch (e.GetKey())
 	{
+	case 0x01: // Transpose
 		m_organfile->GetSetter()->SetTranspose(e.GetValue());
+		break;
+	case 0x02: // Temperament
+		if (e.GetValue() < 0)
+			return;
+		if (e.GetValue() >= num_temps)
+			return;
+
+		m_organfile->SetTemperament(wxTRANSLATE(temperaments[e.GetValue()]));
+		break;
 	}
 }
