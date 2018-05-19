@@ -113,7 +113,7 @@ void GOrgueMidiReceiver::HandleJohannusAntonijnSysEx(const GOrgueMidiEvent& e)
 		"Zarlino (1558) 2/7-comma meantone",
 		"Pythagorean",
 	};
-	static const size_t num_temps = sizeof(temperaments) / sizeof(temperaments[0]);
+	static const int num_temps = sizeof(temperaments) / sizeof(temperaments[0]);
 
 	if (!m_organfile)
 		return;
@@ -123,13 +123,15 @@ void GOrgueMidiReceiver::HandleJohannusAntonijnSysEx(const GOrgueMidiEvent& e)
 	case 0x01: // Transpose
 		m_organfile->GetSetter()->SetTranspose(e.GetValue());
 		break;
-	case 0x02: // Temperament
-		if (e.GetValue() < 0)
-			return;
-		if (e.GetValue() >= num_temps)
-			return;
 
-		m_organfile->SetTemperament(wxTRANSLATE(temperaments[e.GetValue()]));
+	case 0x02: // Temperament
+		if (e.GetValue() >= 0 && e.GetValue() < num_temps)
+			m_organfile->SetTemperament(wxTRANSLATE(temperaments[e.GetValue()]));
+		break;
+
+	case 0x101: // Volume/gain
+		if (e.GetValue() >= -120 && e.GetValue() <= 20)
+			m_organfile->SetVolume(e.GetValue());
 		break;
 	}
 }
