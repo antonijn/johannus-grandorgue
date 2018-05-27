@@ -970,6 +970,19 @@ void GOrgueFrame::OnMidiEvent(const GOrgueMidiEvent& event)
 		wxLogWarning(_("MIDI event: ") + event.ToString(m_Sound.GetMidi().GetMidiMap()));
 	}
 
+	if (event.GetMidiType() == MIDI_SYSEX_JOHANNUS_ANTONIJN && event.GetKey() == 0x04)
+	{
+		ptr_vector<GOrgueOrgan>& organs = m_Settings.GetOrganList();
+		for(unsigned i = 0; i < organs.size(); i++)
+		{
+			if ((event.GetValue() == 0 && organs[i]->GetChurchName() == "Friesach")
+			 || (event.GetValue() == 1 && organs[i]->GetChurchName() == "Green Positiv"))
+			{
+				SendLoadOrgan(*organs[i], true);
+			}
+		}
+	}
+
 	ptr_vector<GOrgueOrgan>& organs = m_Settings.GetOrganList();
 	for(unsigned i = 0; i < organs.size(); i++)
 		if (organs[i]->Match(event) && organs[i]->IsUsable(m_Settings))

@@ -101,40 +101,4 @@ void GOrgueMidiReceiver::Assign(const GOrgueMidiReceiverData& data)
 
 void GOrgueMidiReceiver::HandleJohannusAntonijnSysEx(const GOrgueMidiEvent& e)
 {
-	// Need to be translated
-	static const char *const temperaments[] = {
-		"Original temperament",
-		"Equal temperament",
-		"Kirnberger III",
-		"Werckmeister III",
-		"Bach (Bradley Lehman)",
-		"1/4 comma meantone (Aaron 1523)",
-		"1/5-comma meantone (Verheijen)",
-		"1/6-comma meantone",
-		"Zarlino (1558) 2/7-comma meantone",
-		"Pythagorean",
-	};
-	static const int num_temps = sizeof(temperaments) / sizeof(temperaments[0]);
-
-	if (!m_organfile)
-		return;
-
-	switch (e.GetKey())
-	{
-	case 0x01: // Transpose
-		m_organfile->GetSetter()->SetTranspose(e.GetValue());
-		break;
-
-	case 0x02: // Temperament
-		if (e.GetValue() >= 0 && e.GetValue() < num_temps)
-			m_organfile->SetTemperament(wxTRANSLATE(temperaments[e.GetValue()]));
-		break;
-
-	case 0x101: // Volume/gain
-		if (e.GetValue() >= -120 && e.GetValue() <= 20) {
-			m_organfile->SetVolume(e.GetValue());
-			m_organfile->GetSoundEngine()->SetVolume(e.GetValue());
-		}
-		break;
-	}
 }
