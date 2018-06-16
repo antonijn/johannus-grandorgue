@@ -295,7 +295,7 @@ void MIDIEventRecvDialog::OnTypeChange(wxCommandEvent& event)
 			m_LowValueLabel->SetLabel(_("&Off RPN number:"));
 		else if (type == MIDI_M_NRPN_RANGE)
 			m_LowValueLabel->SetLabel(_("&Off NRPN number:"));
-		else if (type == MIDI_M_SYSEX_VISCOUNT_TOGGLE)
+		else if (type == MIDI_M_SYSEX_VISCOUNT_TOGGLE || type == MIDI_M_SYSEX_JOHANNUS_ANTONIJN)
 			m_LowValueLabel->SetLabel(_("&Value:"));
 		else if (type == MIDI_M_SYSEX_JOHANNUS_11)
 			m_LowValueLabel->SetLabel(_("L&ower bank:"));

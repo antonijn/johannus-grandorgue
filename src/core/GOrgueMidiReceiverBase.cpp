@@ -318,6 +318,7 @@ bool GOrgueMidiReceiverBase::HasLowerLimit(midi_match_message_type type)
 	    type == MIDI_M_SYSEX_VISCOUNT ||
 	    type == MIDI_M_SYSEX_VISCOUNT_TOGGLE ||
 	    type == MIDI_M_SYSEX_JOHANNUS_11 ||
+	    type == MIDI_M_SYSEX_JOHANNUS_ANTONIJN ||
 	    type == MIDI_M_NOTE_SHORT_OCTAVE)
 		return true;
 	return false;
@@ -472,15 +473,6 @@ MIDI_MATCH_TYPE GOrgueMidiReceiverBase::Match(const GOrgueMidiEvent& e, const un
 		unsigned pos = createInternal(e.GetDevice());
 		m_Internal[pos].channel = e.GetChannel();
 		m_Internal[pos].key = e.GetValue();
-		return MIDI_MATCH_NONE;
-	}
-
-	if (e.GetMidiType() == MIDI_SYSEX_JOHANNUS_ANTONIJN)
-	{
-		if (m_ElementID == -1)
-			return MIDI_MATCH_NONE;
-
-		HandleJohannusAntonijnSysEx(e);
 		return MIDI_MATCH_NONE;
 	}
 
@@ -795,6 +787,8 @@ MIDI_MATCH_TYPE GOrgueMidiReceiverBase::Match(const GOrgueMidiEvent& e, const un
 		{
 			return debounce(e, MIDI_MATCH_CHANGE, i);
 		}
+		if (e.GetMidiType() == MIDI_SYSEX_JOHANNUS_ANTONIJN && m_events[i].type == MIDI_M_SYSEX_JOHANNUS_ANTONIJN && m_events[i].key == e.GetKey() && m_events[i].low_value == e.GetValue())
+			return MIDI_MATCH_ON;
 		if (e.GetMidiType() == MIDI_RPN && m_events[i].type == MIDI_M_RPN_RANGE && m_events[i].low_value == e.GetKey() && m_events[i].key == e.GetValue())
 				return MIDI_MATCH_OFF;
 		if (e.GetMidiType() == MIDI_RPN && m_events[i].type == MIDI_M_RPN_RANGE && m_events[i].high_value == e.GetKey() && m_events[i].key == e.GetValue())
