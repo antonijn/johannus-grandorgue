@@ -25,6 +25,8 @@
 #include <wx/intl.h>
 #include <cstdio>
 #include <cstring>
+#include <algorithm>
+#include <iterator>
 
 GOrgueMidiEvent::GOrgueMidiEvent() :
 	m_miditype(MIDI_NONE),
@@ -381,10 +383,23 @@ void GOrgueMidiEvent::ToMidi(std::vector<std::vector<unsigned char>>& msg, GOrgu
 		}
 		return;
 
+	case MIDI_SYSEX_JOHANNUS_ANTONIJN:
+		{
+			uint16_t key = GetKey();
+			uint16_t value = GetValue();
+			m.resize(26);
+			m[0] = 0xF0;
+			char johannus[25];
+			std::sprintf(johannus, "JOHANNUSANTONIJN%04x%04x", (int)key, (int)value);
+			std::copy(std::begin(johannus), std::end(johannus), m.begin() + 1);
+			m[25] = 0xF7;
+			msg.push_back(m);
+		}
+		return;
+
 	case MIDI_SYSEX_JOHANNUS_9:
 	case MIDI_SYSEX_JOHANNUS_11:
 	case MIDI_SYSEX_VISCOUNT:
-	case MIDI_SYSEX_JOHANNUS_ANTONIJN:
 	case MIDI_AFTERTOUCH:
 	case MIDI_NONE:
 	case MIDI_RESET:

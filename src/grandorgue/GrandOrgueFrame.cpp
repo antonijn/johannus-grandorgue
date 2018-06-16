@@ -391,7 +391,7 @@ void GOrgueFrame::Open(const GOrgueOrgan& organ, bool force)
 	e.SetMidiType(MIDI_SYSEX_JOHANNUS_ANTONIJN);
 	e.SetKey(0x100);
 	e.SetValue(0);
-	organfile->SendMidiMessage(e);
+	m_Sound.GetMidi().Send(e);
 }
 
 GOrgueDocument* GOrgueFrame::GetDocument()
