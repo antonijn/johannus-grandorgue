@@ -385,6 +385,13 @@ void GOrgueFrame::Open(const GOrgueOrgan& organ, bool force)
 	GOrgueProgressDialog dlg;
 	m_doc = new GOrgueDocument(&m_Sound);
 	m_doc->Load(&dlg, organ);
+	auto organfile = m_doc->GetOrganFile();
+
+	GOrgueMidiEvent e;
+	e.SetMidiType(MIDI_SYSEX_JOHANNUS_ANTONIJN);
+	e.SetKey(0x100);
+	e.SetValue(0);
+	organfile->SendMidiMessage(e);
 }
 
 GOrgueDocument* GOrgueFrame::GetDocument()
