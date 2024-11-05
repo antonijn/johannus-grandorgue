@@ -9,6 +9,7 @@
 
 #include "GOMidiEvent.h"
 #include "GOMidiMap.h"
+#include "GOMidiReceiverMessageType.h"
 #include "GORodgers.h"
 #include "config/GOConfigReader.h"
 #include "config/GOConfigWriter.h"
@@ -26,6 +27,7 @@ const struct IniFileEnumEntry GOMidiReceiverBase::m_MidiTypes[] = {
   {wxT("Note"), MIDI_M_NOTE},
   {wxT("ProgramChange"), MIDI_M_PGM_CHANGE},
   {wxT("ProgramRange"), MIDI_M_PGM_RANGE},
+  {wxT("SysExJohannusAntonijn"), MIDI_M_SYSEX_JOHANNUS_ANTONIJN},
   {wxT("SysExJohannus"), MIDI_M_SYSEX_JOHANNUS_9},
   {wxT("SysExJohannus11"), MIDI_M_SYSEX_JOHANNUS_11},
   {wxT("SysExViscount"), MIDI_M_SYSEX_VISCOUNT},
@@ -270,8 +272,8 @@ bool GOMidiReceiverBase::HasKey(GOMidiReceiverMessageType type) {
   if (
     type == MIDI_M_NOTE || type == MIDI_M_CTRL_CHANGE
     || type == MIDI_M_PGM_CHANGE || type == MIDI_M_RPN_RANGE
-    || type == MIDI_M_NRPN_RANGE || type == MIDI_M_SYSEX_JOHANNUS_9
-    || type == MIDI_M_SYSEX_JOHANNUS_11
+    || type == MIDI_M_NRPN_RANGE || type == MIDI_M_SYSEX_JOHANNUS_ANTONIJN
+    || type == MIDI_M_SYSEX_JOHANNUS_9 || type == MIDI_M_SYSEX_JOHANNUS_11
     || type == MIDI_M_SYSEX_RODGERS_STOP_CHANGE || type == MIDI_M_CTRL_BIT
     || type == MIDI_M_CTRL_CHANGE_FIXED || type == MIDI_M_RPN
     || type == MIDI_M_NRPN || type == MIDI_M_NOTE_ON || type == MIDI_M_NOTE_OFF
@@ -347,6 +349,7 @@ bool GOMidiReceiverBase::HasLowerLimit(GOMidiReceiverMessageType type) {
     || type == MIDI_M_SYSEX_VISCOUNT_TOGGLE
     || type == MIDI_M_SYSEX_AHLBORN_GALANTI
     || type == MIDI_M_SYSEX_AHLBORN_GALANTI_TOGGLE
+    || type == MIDI_M_SYSEX_JOHANNUS_ANTONIJN
     || type == MIDI_M_SYSEX_JOHANNUS_11
     || type == MIDI_M_SYSEX_RODGERS_STOP_CHANGE
     || type == MIDI_M_NOTE_SHORT_OCTAVE)
@@ -819,6 +822,12 @@ GOMidiMatchType GOMidiReceiverBase::Match(
       eMidiType == GOMidiEvent::MIDI_PGM_CHANGE
       && pattern.type == MIDI_M_PGM_RANGE && pattern.high_value == e.GetKey())
       return MIDI_MATCH_ON;
+    if (
+      eMidiType == GOMidiEvent::MIDI_SYSEX_JOHANNUS_ANTONIJN
+      && pattern.type == MIDI_M_SYSEX_JOHANNUS_ANTONIJN && pattern.key == e.GetKey()
+      && pattern.low_value == e.GetValue()) {
+      return MIDI_MATCH_ON;
+    }
     if (
       eMidiType == GOMidiEvent::MIDI_SYSEX_JOHANNUS_9
       && pattern.type == MIDI_M_SYSEX_JOHANNUS_9 && pattern.key == e.GetKey()) {

@@ -38,6 +38,7 @@ class GOCache;
 class GODialogSizeSet;
 class GODivisionalSetter;
 class GOElementCreator;
+class GOMetronome;
 class GOMidi;
 class GOMidiEvent;
 class GOMidiPlayer;
@@ -72,6 +73,7 @@ private:
   GOAudioRecorder *m_AudioRecorder;
   GOMidiPlayer *m_MidiPlayer;
   GOMidiRecorder *m_MidiRecorder;
+  GOMetronome *m_Metronome;
   GOTimer *m_timer;
   GOButtonControl *p_OnStateButton;
   int m_volume;

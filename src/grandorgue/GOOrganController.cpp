@@ -271,10 +271,11 @@ void GOOrganController::ReadOrganFile(GOConfigReader &cfg) {
   m_AudioRecorder = new GOAudioRecorder(this);
   m_MidiRecorder = new GOMidiRecorder(this);
   m_MidiPlayer = new GOMidiPlayer(this);
+  m_Metronome = new GOMetronome(this);
   m_elementcreators.push_back(m_AudioRecorder);
   m_elementcreators.push_back(m_MidiPlayer);
   m_elementcreators.push_back(m_MidiRecorder);
-  m_elementcreators.push_back(new GOMetronome(this));
+  m_elementcreators.push_back(m_Metronome);
   m_panelcreators.push_back(new GOGUICouplerPanel(this, m_VirtualCouplers));
   m_panelcreators.push_back(new GOGUIFloatingPanel(this));
   m_panelcreators.push_back(new GOGUIMetronomePanel(this));
@@ -1096,6 +1097,78 @@ void GOOrganController::Update() {
 }
 
 void GOOrganController::ProcessMidi(const GOMidiEvent &event) {
+  if (event.GetMidiType() == GOMidiEvent::MIDI_SYSEX_JOHANNUS_ANTONIJN)
+  {
+    // Need to be translated
+    static const char *const temperaments[] = {
+      // 0 = Original
+      "Original temperament",
+      // 1 = Equal
+      "Equal temperament",
+      // 2 = 1/4 Meantone
+      "1/4 comma meantone (Aaron 1523)",
+      // 3 = 1/5 Meantone
+      "1/5-comma meantone (Verheijen)",
+      // 4 = 1/6 Meantone
+      "1/6-comma meantone",
+      // 5 = 2/7 Meantone
+      "Zarlino (1558) 2/7-comma meantone",
+      // 6 = Werckmeister
+      "Werckmeister III",
+      // 7 = Pythagorean
+      "Pythagorean",
+      // 8 = Pyth. (B-F#)
+      "Henri Arnaut De Zwolle. (1436).",
+    };
+    static const int num_temps = sizeof(temperaments) / sizeof(temperaments[0]);
+
+    const auto& e = event;
+    switch (e.GetKey())
+    {
+    case 0x01: // Transpose
+      GetSetter()->SetTranspose(e.GetValue());
+      break;
+
+    case 0x02: // Temperament
+      if (e.GetValue() >= 0 && e.GetValue() < num_temps)
+        SetTemperament(wxTRANSLATE(temperaments[e.GetValue()]));
+      break;
+
+    case 0x05: // Metronome BPM
+        m_Metronome->SetBPM(e.GetValue());
+        break;
+
+    case 0x06: // Metronome Division
+        m_Metronome->SetMeasure(e.GetValue());
+        break;
+
+    case 0x101: // Volume/gain
+      if (e.GetValue() >= -120 && e.GetValue() <= 20) {
+        SetVolume(e.GetValue());
+        m_soundengine->SetVolume(e.GetValue());
+      }
+      break;
+
+    case 0x102:
+      if (e.GetValue() >= 1 && e.GetValue() <= 50)
+        m_soundengine->SetHardPolyphony(100 * e.GetValue());
+      break;
+
+    case 0x141:
+      m_AudioRecorder->StartRecording(false);
+      break;
+    case 0x142:
+      m_AudioRecorder->StopRecording();
+      break;
+
+    case 0x143:
+      m_Metronome->StartTimer();
+      break;
+    case 0x144:
+      m_Metronome->StopTimer();
+      break;
+    }
+  }
   if (event.GetMidiType() == GOMidiEvent::MIDI_RESET) {
     Reset();
     return;

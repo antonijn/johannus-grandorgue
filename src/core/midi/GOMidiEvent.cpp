@@ -12,6 +12,8 @@
 #include "GOMidiMap.h"
 #include "GORodgers.h"
 
+#include <cstring>
+
 GOMidiEvent::GOMidiEvent()
   : m_MidiType(MIDI_NONE),
     m_channel(-1),
@@ -97,6 +99,17 @@ void GOMidiEvent::FromMidi(
     if (msg.size() == 1 && msg[0] == 0xFF) {
       SetMidiType(MIDI_RESET);
       break;
+    }
+    if (msg.size() == 26 && msg[0] == 0xF0
+      && 0 == std::strncmp((const char *)&msg[1], "JOHANNUSANTONIJN", 16)
+      && msg[25] == 0xF7) {
+      unsigned key, value;
+      std::sscanf((const char *)&msg[17], "%4x%4x", &key, &value);
+      int16_t key16 = (key < 0x8000) ? key : ((int)key - 0x10000);
+      int16_t value16 = (value < 0x8000) ? value : ((int)value - 0x10000);
+      SetKey(key16);
+      SetValue(value16);
+      SetMidiType(MIDI_SYSEX_JOHANNUS_ANTONIJN);
     }
     if (
       msg.size() == 9 && msg[0] == 0xF0 && msg[1] == 0x00 && msg[2] == 0x4A
@@ -392,6 +405,19 @@ void GOMidiEvent::ToMidi(
     return;
   }
 
+  case MIDI_SYSEX_JOHANNUS_ANTONIJN: {
+    uint16_t key = GetKey();
+    uint16_t value = GetValue();
+    m.resize(26);
+    m[0] = 0xF0;
+    m[25] = 0xF7;
+    char johannus[25];
+    std::sprintf(johannus, "JOHANNUSANTONIJN%04x%04x", (unsigned)key, (unsigned)value);
+    std::copy(std::begin(johannus), std::end(johannus) - 1, m.begin() + 1);
+    msg.push_back(m);
+  }
+    return;
+
   case MIDI_SYSEX_JOHANNUS_9:
   case MIDI_SYSEX_JOHANNUS_11:
   case MIDI_SYSEX_VISCOUNT:
@@ -449,6 +475,9 @@ wxString GOMidiEvent::ToString(GOMidiMap &map) const {
       GetChannel(),
       GetKey(),
       GetValue());
+
+  case MIDI_SYSEX_JOHANNUS_ANTONIJN:
+    return wxString::Format(_("sysex Johannus-Antonijn key: %d value %d"), GetKey(), GetValue());
 
   case MIDI_SYSEX_JOHANNUS_9:
     return wxString::Format(_("sysex Johannus 9 bytes value: %d"), GetKey());

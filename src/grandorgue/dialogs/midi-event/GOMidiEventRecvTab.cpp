@@ -279,6 +279,8 @@ GOMidiEventRecvTab::GOMidiEventRecvTab(
     m_eventtype->Append(
       _("Bx Ctrl Change Fixed On/Off Value Toggle"),
       MIDI_M_CTRL_CHANGE_FIXED_ON_OFF);
+    m_eventtype->Append(
+      _("Sys Ex Johannus/Antonijn"), MIDI_M_SYSEX_JOHANNUS_ANTONIJN);
     m_eventtype->Append(_("Sys Ex Johannus 9 bytes"), MIDI_M_SYSEX_JOHANNUS_9);
     m_eventtype->Append(
       _("Sys Ex Johannus 11 bytes"), MIDI_M_SYSEX_JOHANNUS_11);
@@ -383,6 +385,8 @@ void GOMidiEventRecvTab::OnTypeChange(wxCommandEvent &event) {
     else if (type == MIDI_M_NRPN_RANGE)
       m_LowValueLabel->SetLabel(_("&Off NRPN number:"));
     else if (type == MIDI_M_SYSEX_VISCOUNT_TOGGLE)
+      m_LowValueLabel->SetLabel(_("&Value:"));
+    else if (type == MIDI_M_SYSEX_JOHANNUS_ANTONIJN)
       m_LowValueLabel->SetLabel(_("&Value:"));
     else if (type == MIDI_M_SYSEX_JOHANNUS_11)
       m_LowValueLabel->SetLabel(_("L&ower bank:"));
@@ -588,6 +592,7 @@ void GOMidiEventRecvTab::OnMidiEvent(const GOMidiEvent &event) {
   case GOMidiEvent::MIDI_PGM_CHANGE:
   case GOMidiEvent::MIDI_RPN:
   case GOMidiEvent::MIDI_NRPN:
+  case GOMidiEvent::MIDI_SYSEX_JOHANNUS_ANTONIJN:
   case GOMidiEvent::MIDI_SYSEX_JOHANNUS_9:
   case GOMidiEvent::MIDI_SYSEX_JOHANNUS_11:
   case GOMidiEvent::MIDI_SYSEX_VISCOUNT:
@@ -889,6 +894,9 @@ void GOMidiEventRecvTab::DetectEvent() {
               if (on.GetValue() == off.GetValue())
                 e.type = on.GetValue() > 0 ? MIDI_M_NRPN_ON : MIDI_M_NRPN_OFF;
               break;
+	    case GOMidiEvent::MIDI_SYSEX_JOHANNUS_ANTONIJN:
+              e.type = MIDI_M_SYSEX_JOHANNUS_ANTONIJN;
+              break;
             case GOMidiEvent::MIDI_SYSEX_JOHANNUS_9:
               e.type = MIDI_M_SYSEX_JOHANNUS_9;
               break;
@@ -972,6 +980,9 @@ void GOMidiEventRecvTab::DetectEvent() {
       break;
     case GOMidiEvent::MIDI_NRPN:
       e.type = MIDI_M_NRPN;
+      break;
+    case GOMidiEvent::MIDI_SYSEX_JOHANNUS_ANTONIJN:
+      e.type = MIDI_M_SYSEX_JOHANNUS_ANTONIJN;
       break;
     case GOMidiEvent::MIDI_SYSEX_JOHANNUS_9:
       e.type = MIDI_M_SYSEX_JOHANNUS_9;

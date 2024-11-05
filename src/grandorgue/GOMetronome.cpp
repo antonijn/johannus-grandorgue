@@ -190,6 +190,16 @@ void GOMetronome::UpdateMeasure(int val) {
   UpdateState();
 }
 
+void GOMetronome::SetBPM(int val) {
+  int delta = val - (int)m_BPM;
+  UpdateBPM(delta);
+}
+
+void GOMetronome::SetMeasure(int val) {
+  int delta = val - (int)m_MeasureLength;
+  UpdateMeasure(delta);
+}
+
 void GOMetronome::UpdateState() {
   m_BPMDisplay.SetContent(wxString::Format(_("%d BPM"), m_BPM));
   m_MeasureDisplay.SetContent(wxString::Format(_("%d"), m_MeasureLength));

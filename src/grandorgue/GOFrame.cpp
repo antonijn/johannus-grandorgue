@@ -642,6 +642,14 @@ void GOFrame::Open(const GOOrgan &organ) {
       LoadOrgan(organ);
     }
   }
+
+  // Send ready message
+  GOMidiEvent e;
+  e.SetMidiType(GOMidiEvent::MIDI_SYSEX_JOHANNUS_ANTONIJN);
+  e.SetKey(0x100); // GRANDORGUE_READY
+  e.SetValue(0);
+  e.SetDevice(0);
+  m_Sound.GetMidi().Send(e);
 }
 
 GOOrganController *GOFrame::GetOrganController() const {

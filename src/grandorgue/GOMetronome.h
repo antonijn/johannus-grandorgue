@@ -47,8 +47,6 @@ private:
 
   void Save(GOConfigWriter &cfg) override;
 
-  void StartTimer();
-  void StopTimer();
   void UpdateState();
   void UpdateBPM(int val);
   void UpdateMeasure(int val);
@@ -58,6 +56,12 @@ public:
   virtual ~GOMetronome();
 
   void Load(GOConfigReader &cfg) override;
+
+  void SetBPM(int val);
+  void SetMeasure(int val);
+
+  void StartTimer();
+  void StopTimer();
 
   GOEnclosure *GetEnclosure(const wxString &name, bool is_panel) override;
   GOLabelControl *GetLabelControl(const wxString &name, bool is_panel) override;
